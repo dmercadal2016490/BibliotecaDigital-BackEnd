@@ -8,4 +8,6 @@ const upload = connectMultiparty({uploadDir: './uploads/books'});
 
 var api = express.Router();
 
+api.post('/addLibro/:idU', [mdAuth.ensureAuth, mdAuth.ensureAuthAdminOrBibliotecario], librosController.addLibro);
+
 module.exports = api; 
