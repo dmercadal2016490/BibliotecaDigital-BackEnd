@@ -97,7 +97,38 @@ function agregarCopias(req,res){
     }
 }
 
+function quitarCopias(req,res){
+    var userId = req.params.idU;
+    var libroId = req.params.idL;
+    var params = req.body;
+
+    if(userId != req.user.sub){
+        res.status(403).send({message: 'No tienes permisos para acceder a esta ruta'})
+    }else{
+        Libro.findById(libroId, (err, libroFind)=>{
+            if(err){
+                res.status(500).send({message: 'Error general al buscar el libro'});
+                console.log(err);
+            }else if(libroFind){
+                Libro.findByIdAndUpdate(libroId, {$inc:{disponibles: -params.cantidad}}, {new:true}, (err, quitado)=>{
+                    if(err){
+                        res.status(500).send({message: 'Error general al quitar las copias'});
+                        console.log(err);
+                    }else if(quitado){
+                        res.send({message: 'Copias quitadas ', quitado});
+                    }else{
+                        res.send({message: 'No se quitaron las copias'});
+                    }
+                })
+            }else{
+                res.status(404).send({message: 'El libro al que quieres agregar las copias no existe'});
+            }
+        })
+    }
+}
+
 module.exports = {
     addLibro,
-    agregarCopias
+    agregarCopias,
+    quitarCopias
 }
