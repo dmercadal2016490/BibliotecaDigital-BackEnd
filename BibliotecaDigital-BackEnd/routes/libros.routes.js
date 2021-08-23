@@ -10,6 +10,9 @@ var api = express.Router();
 
 api.post('/addLibro/:idU', [mdAuth.ensureAuth, mdAuth.ensureAuthAdminOrBibliotecario], librosController.addLibro);
 api.put('/:idU/agregarCopias/:idL', [mdAuth.ensureAuth, mdAuth.ensureAuthAdminOrBibliotecario], librosController.agregarCopias);
-api.put('/:idU/quitarCopias/:idL', [mdAuth.ensureAuth, mdAuth.ensureAuthAdminOrBibliotecario], librosController.quitarCopias)
+api.put('/:idU/quitarCopias/:idL', [mdAuth.ensureAuth, mdAuth.ensureAuthAdminOrBibliotecario], librosController.quitarCopias);
+api.put('/:idU/updateLibro/:idL', [mdAuth.ensureAuth, mdAuth.ensureAuthAdminOrBibliotecario], librosController.updateLibro);
+api.delete('/:idU/deleteLibro/:idL', [mdAuth.ensureAuth, mdAuth.ensureAuthAdminOrBibliotecario], librosController.deleteLibro);
+api.get('/getLibros', librosController.getLibros)
 
 module.exports = api; 

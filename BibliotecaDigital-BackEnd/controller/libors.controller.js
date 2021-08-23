@@ -4,6 +4,7 @@ var Libro = require('../models/libros.model');
 var fs = require('fs');
 var path = require('path');
 var jwt = require('../services/jwt');
+const { update } = require('../models/libros.model');
 
 function addLibro(req, res){
     var libro = new Libro();
@@ -127,8 +128,86 @@ function quitarCopias(req,res){
     }
 }
 
+function updateLibro(req, res){
+    var userId = req.params.idU;
+    var libroId = req.params.idL;
+    var params = req.body;
+
+    if(userId != req.user.sub){
+        res.status(403).send({message: 'No tienes permisos para acceder a esta ruta'})
+    }else{
+        if(params.disponibles || params.compras){
+            res.status(401).send({message: 'No se puede actulizar las copias ni las compras de un libro'});
+        }else{
+            Libro.findById(libroId, (err,libroFind)=>{
+                if(err){
+                    res.status(500).send({message: 'Error general al buscar el libro'});
+                    console.log(err);
+                }else if(libroFind){
+                    Libro.findByIdAndUpdate(libroId, params, {new:true}, (err, libroUpdated)=>{
+                        if(err){
+                            res.status(500).send({message: 'Error general al actualizar el libro'});
+                            console.log(err);
+                        }else if(libroUpdated){
+                            res.send({message: 'Libro actualizado ', libroUpdated});
+                        }else{
+                            res.send({message: 'No se actualizo el libro'});
+                        }
+                    })
+                }else{
+                    res.status(404).send({message: 'El libro que quieres actualizar no existe'});
+                }
+            })
+        }
+    }
+}
+
+function deleteLibro(req,res){
+    var userId = req.params.idU;
+    var libroId = req.params.idL;
+
+    if(userId != req.user.sub){
+        res.status(403).send({message: 'No tienes permisos para acceder a esta ruta'})
+    }else{
+        Libro.findById(libroId, (err,libroFind)=>{
+            if(err){
+                res.status(500).send({message: 'Error general al buscar el libro'});
+                console.log(err);
+            }else if(libroFind){
+                Libro.findByIdAndRemove(libroId, (err, libroDeleted)=>{
+                    if(err){
+                        res.status(500).send({message: 'Error general al eliminar el libro'});
+                    }else if(libroDeleted){
+                        res.send({message: 'Libro eliminado'})
+                    }else{
+                        res.send({message: 'No se elimino el libro'});
+                    }
+                })
+            }else{
+                res.status(404).send({message: 'El libro que quieres eliminar no existe'});
+            }
+        })
+    }
+}
+
+function getLibros(req,res){
+    Libro.find({}).exec((err, libros)=>{
+        if(err){
+            res.status(500).send({message: 'Error general al buscar usuarios'});
+            console.log(err)
+        }else if(libros){
+            res.send({message: 'Libros encontrados: ', libros});
+        }else{
+            res.status(404).send({message: 'No existen libros'})
+        }
+    })
+}
+
 module.exports = {
     addLibro,
     agregarCopias,
-    quitarCopias
+    quitarCopias,
+    updateLibro,
+    deleteLibro,
+    getLibros
 }
