@@ -81,7 +81,7 @@ function agregarCopias(req,res){
                 res.status(500).send({message: 'Error general al buscar el libro'});
                 console.log(err);
             }else if(libroFind){
-                Libro.findByIdAndUpdate(libroId, {$inc:{disponibles: +params.cantidad}}, {new:true}, (err, agregado)=>{
+                Libro.findByIdAndUpdate(libroId, {$inc:{disponibles: +params.disponibles}}, {new:true}, (err, agregado)=>{
                     if(err){
                         res.status(500).send({message: 'Error general al agregar las copias'});
                         console.log(err);
@@ -111,16 +111,20 @@ function quitarCopias(req,res){
                 res.status(500).send({message: 'Error general al buscar el libro'});
                 console.log(err);
             }else if(libroFind){
-                Libro.findByIdAndUpdate(libroId, {$inc:{disponibles: -params.cantidad}}, {new:true}, (err, quitado)=>{
-                    if(err){
-                        res.status(500).send({message: 'Error general al quitar las copias'});
-                        console.log(err);
-                    }else if(quitado){
-                        res.send({message: 'Copias quitadas ', quitado});
-                    }else{
-                        res.send({message: 'No se quitaron las copias'});
-                    }
-                })
+                if(libroFind.disponibles <=0){
+                    res.send({message: 'No hay copias para quitar'})
+                }else{
+                    Libro.findByIdAndUpdate(libroId, {$inc:{disponibles: -params.disponibles}}, {new:true}, (err, quitado)=>{
+                        if(err){
+                            res.status(500).send({message: 'Error general al quitar las copias'});
+                            console.log(err);
+                        }else if(quitado){
+                            res.send({message: 'Copias quitadas ', quitado});
+                        }else{
+                            res.send({message: 'No se quitaron las copias'});
+                        }
+                    })
+                }
             }else{
                 res.status(404).send({message: 'El libro al que quieres agregar las copias no existe'});
             }

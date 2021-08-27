@@ -13,9 +13,11 @@ var librosSchema = Schema({
     temas: String,
     frecuencia: String,
     ejemplares: Number,
+    image: String,
     copias: Number,
     disponibles: Number,
-    compras: Number
+    compras: Number,
+    busquedas: Number
 });
 
 module.exports = mongoose.model('libros', librosSchema)
