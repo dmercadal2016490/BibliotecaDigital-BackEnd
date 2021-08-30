@@ -140,57 +140,62 @@ function saveUser(req,res){
     var params = req.body;
     var user = new User();
     var userId = req.params.idU;
+    var emailV = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
     if(userId != req.user.sub){
         res.status(403).send({message: 'No tienes permisos para acceder a esta ruta'})
     }else{
         if(params.username && params.password && params.name && params.lastname && params.email && params.cui && params.role){
-            User.findOne({username: params.username.toLowerCase()}, (err,userFind)=>{
-                if(err){
-                    res.status(500).send({message: 'Error general al buscar el username'});
-                    console.log(err);
-                }else if(userFind){
-                    res.send({message: 'Nombre de Usuario ya en uso'});
-                }else{
-                    User.findOne({cui: params.cui}, (err,cuiFound)=>{
-                        if(err){
-                            res.status(500).send({message: 'Error general al buscar el CUI'});
-                            console.log(err);
-                        }else if(cuiFound){
-                            res.send({message: 'Numero de cui ya en uso, perteneciente al usuario: ', Usuario: cuiFound.username});
-                        }else{
-                            bcrypt.hash(params.password, null, null, (err, passwordHashed)=>{
-                                if(err){
-                                    res.status(500).send({message: 'Error general al encriptar la contraseña'});
-                                    console.log(err);
-                                }else if(passwordHashed){
-                                    user.cui = params.cui
-                                    user.password = passwordHashed;
-                                    user.name = params.name;
-                                    user.lastname = params.lastname;
-                                    user.username = params.username.toLowerCase();
-                                    user.email = params.email.toLowerCase();
-                                    user.role = params.role;
-                                    user.librosRentados = 0;
-    
-                                    user.save((err, userSaved)=>{
-                                        if(err){
-                                            res.status(500).send({message: 'Error general al crear al usuario'});
-                                            console.log(err);
-                                        }else if(userSaved){
-                                            res.send({message: 'Usuario creado exitosamente ', userSaved})
-                                        }else{
-                                            res.status(400).send({message: 'No se creo al usuario'})
-                                        }
-                                    })
-                                }else{
-                                    res.status(400).send({message: 'Contraseña no encriptada'});
-                                }
-                            })
-                        }
-                    })
-                }
-            })
+            if(emailV.test(params.email)){
+                User.findOne({username: params.username.toLowerCase()}, (err,userFind)=>{
+                    if(err){
+                        res.status(500).send({message: 'Error general al buscar el username'});
+                        console.log(err);
+                    }else if(userFind){
+                        res.send({message: 'Nombre de Usuario ya en uso'});
+                    }else{
+                        User.findOne({cui: params.cui}, (err,cuiFound)=>{
+                            if(err){
+                                res.status(500).send({message: 'Error general al buscar el CUI'});
+                                console.log(err);
+                            }else if(cuiFound){
+                                res.send({message: 'Numero de cui ya en uso, perteneciente al usuario: ', Usuario: cuiFound.username});
+                            }else{
+                                bcrypt.hash(params.password, null, null, (err, passwordHashed)=>{
+                                    if(err){
+                                        res.status(500).send({message: 'Error general al encriptar la contraseña'});
+                                        console.log(err);
+                                    }else if(passwordHashed){
+                                        user.cui = params.cui
+                                        user.password = passwordHashed;
+                                        user.name = params.name;
+                                        user.lastname = params.lastname;
+                                        user.username = params.username.toLowerCase();
+                                        user.email = params.email.toLowerCase();
+                                        user.role = params.role;
+                                        user.librosRentados = 0;
+        
+                                        user.save((err, userSaved)=>{
+                                            if(err){
+                                                res.status(500).send({message: 'Error general al crear al usuario'});
+                                                console.log(err);
+                                            }else if(userSaved){
+                                                res.send({message: 'Usuario creado exitosamente ', userSaved})
+                                            }else{
+                                                res.status(400).send({message: 'No se creo al usuario'})
+                                            }
+                                        })
+                                    }else{
+                                        res.status(400).send({message: 'Contraseña no encriptada'});
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })
+            }else{
+                res.send({message: 'Direccion de correo invalida'});
+            }
         }else{
             res.send({message: 'Favor de ingresar todos los campos'});
         }
@@ -259,10 +264,7 @@ function editUser(req, res){
 
 function deleteUser(req,res){
     var userId = req.params.idU;
-
-    if(userId != req.user.sub){
-        res.status(403).send({message: 'No tienes permisos para Eliminar otro usuario'});
-    }else{
+    
         User.findById(userId, (err,userFind)=>{
             if(err){
                 res.status(500).send({message: 'Error general al buscar al usuario'});
@@ -282,7 +284,6 @@ function deleteUser(req,res){
                 res.status(404).send({message: 'El usuario que quieres eliminar no existe'});
             }
         })
-    }
 }
 
 function editUserAdmin(req, res){

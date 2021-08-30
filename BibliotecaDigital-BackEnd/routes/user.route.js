@@ -10,11 +10,11 @@ var api = express.Router();
 
 api.post('/login', userController.login);
 api.put('/updateUser/:idU', mdAuth.ensureAuth, userController.editUser);
-api.delete('/deleteUser/:idU', mdAuth.ensureAuth, userController.deleteUser);
+api.delete('/deleteUser/:idU', userController.deleteUser);
 
 //Administrador
 api.post('/saveUser/:idU', [mdAuth.ensureAuth, mdAuth.ensureAuthAdmin], userController.saveUser);
-api.get('/getUsers', [mdAuth.ensureAuth, mdAuth.ensureAuthAdmin], userController.getUsers)
+api.get('/getUsers',  userController.getUsers)
 api.get('/getAdmins/:idA', [mdAuth.ensureAuth, mdAuth.ensureAuthAdmin], userController.getBibliotecarios);
 api.put('/updateUserAdmin/:idU/:idA', [mdAuth.ensureAuth, mdAuth.ensureAuthAdmin], userController.editUserAdmin);
 

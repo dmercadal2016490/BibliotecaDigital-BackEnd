@@ -207,11 +207,72 @@ function getLibros(req,res){
     })
 }
 
+function uploadImageLibro(req, res){
+    var libroId = req.params.idL;
+    var userId = req.params.idU;
+    var update = req.body;
+    var fileName;
+
+    if(userId != req.user.sub){
+        res.status(403).send({message: 'No tienes permisos para cambiar la foto de un Libro'});
+    }else{
+        if(req.files){
+            var filePath = req.files.image.path;
+        
+            var fileSplit = filePath.split('\\');
+            var fileName = fileSplit[2];
+
+            var extension = fileName.split('\.');
+            var fileExt = extension[1];
+            if( fileExt == 'png' ||
+                fileExt == 'PNG' ||
+                fileExt == 'jpg' ||
+                fileExt == 'jpeg' ||
+                fileExt == 'gif'){
+                    Libro.findByIdAndUpdate(libroId, {image: fileName}, {new:true}, (err, libroUpdated)=>{
+                        if(err){
+                            res.status(500).send({message: 'Error general'});
+                        }else if(libroUpdated){
+                            res.send({libro: libroUpdated, libroImage:libroUpdated.image});
+                        }else{
+                            res.status(400).send({message: 'No se ha podido actualizar'});
+                        }
+                    })
+                }else{
+                    fs.unlink(filePath, (err)=>{
+                        if(err){
+                            res.status(500).send({message: 'Extensión no válida y error al eliminar archivo'});
+                        }else{
+                            res.send({message: 'Extensión no válida'})
+                        }
+                    })
+                }
+        }else{
+            res.status(400).send({message: 'No has enviado imagen a subir'})
+        }
+    }
+}
+
+function getImageLibro(req,res){
+    var fileName = req.params.fileName;
+    var pathFile = './uploads/books/' + fileName;
+
+    fs.exists(pathFile, (exists)=>{
+        if(exists){
+            res.sendFile(path.resolve(pathFile));
+        }else{
+            res.status(404).send({message: 'Imagen inexistente'});
+        }
+    })
+}
+
 module.exports = {
     addLibro,
     agregarCopias,
     quitarCopias,
     updateLibro,
     deleteLibro,
-    getLibros
+    getLibros,
+    uploadImageLibro,
+    getImageLibro
 }

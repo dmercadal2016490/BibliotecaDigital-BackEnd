@@ -14,5 +14,7 @@ api.put('/:idU/quitarCopias/:idL', [mdAuth.ensureAuth, mdAuth.ensureAuthAdminOrB
 api.put('/:idU/updateLibro/:idL', [mdAuth.ensureAuth, mdAuth.ensureAuthAdminOrBibliotecario], librosController.updateLibro);
 api.delete('/:idU/deleteLibro/:idL', [mdAuth.ensureAuth, mdAuth.ensureAuthAdminOrBibliotecario], librosController.deleteLibro);
 api.get('/getLibros', librosController.getLibros)
+api.put('/:idU/uploadImageLibro/:idL', [mdAuth.ensureAuth,mdAuth.ensureAuthAdminOrBibliotecario, upload], librosController.uploadImageLibro);
+api.get('/getImageLibro/:fileName', [upload], librosController.getImageLibro);
 
 module.exports = api; 
