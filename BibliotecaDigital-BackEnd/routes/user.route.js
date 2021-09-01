@@ -9,7 +9,7 @@ const upload = connectMultiparty({uploadDir: './uploads/user'})
 var api = express.Router();
 
 api.post('/login', userController.login);
-api.put('/updateUser/:idU', mdAuth.ensureAuth, userController.editUser);
+api.put('/updateUser/:idU', userController.editUser);
 api.delete('/deleteUser/:idU', userController.deleteUser);
 
 //Administrador

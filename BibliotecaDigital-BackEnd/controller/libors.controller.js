@@ -1,6 +1,7 @@
 'use strict'
 
 var Libro = require('../models/libros.model');
+var User = require('../models/user.model');
 var fs = require('fs');
 var path = require('path');
 var jwt = require('../services/jwt');
@@ -266,6 +267,25 @@ function getImageLibro(req,res){
     })
 }
 
+function getMylibros(req,res){
+    var userId = req.params.idU;
+
+    if(userId != req.user.sub){
+        res.status(403).send({message: 'No tienes permisos para ver libros rentados de otro'});
+    }else{
+    User.findById(userId).populate({path:'Libros', populate:{path:'Libros'}}).exec((err,libros)=>{
+        if(err){
+            res.status(500).send({message:'Error general'});
+            console.log(err);
+        }else if(libros){
+            res.send({message: 'Libros: ', libros});
+        }else{
+            res.status(404).send({message: 'No tienes libros rentados'});
+        }
+    })
+    }
+}
+
 module.exports = {
     addLibro,
     agregarCopias,
@@ -274,5 +294,6 @@ module.exports = {
     deleteLibro,
     getLibros,
     uploadImageLibro,
-    getImageLibro
+    getImageLibro,
+    getMylibros
 }

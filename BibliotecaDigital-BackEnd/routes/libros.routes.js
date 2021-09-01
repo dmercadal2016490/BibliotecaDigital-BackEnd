@@ -16,5 +16,6 @@ api.delete('/:idU/deleteLibro/:idL', [mdAuth.ensureAuth, mdAuth.ensureAuthAdminO
 api.get('/getLibros', librosController.getLibros)
 api.put('/:idU/uploadImageLibro/:idL', [mdAuth.ensureAuth,mdAuth.ensureAuthAdminOrBibliotecario, upload], librosController.uploadImageLibro);
 api.get('/getImageLibro/:fileName', [upload], librosController.getImageLibro);
+api.get('/getMylibros/:idU', mdAuth.ensureAuth, librosController.getMylibros);
 
 module.exports = api; 

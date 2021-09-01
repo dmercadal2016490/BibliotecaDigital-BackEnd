@@ -75,7 +75,7 @@ function login(req,res){
             }else{
                 res.status(404).send({message: 'El usuario con el que intentas ingresar no existe. Comunicate con el administrador'});
             }
-        })
+        }).populate('Libros')
     }else{
         res.status(401).send({message: 'Por favor ingresa tu username y contraseña'});
     }
@@ -206,33 +206,64 @@ function saveUser(req,res){
 function editUser(req, res){
     var userId = req.params.idU;
     var data = req.body;
-
-    if(userId != req.user.sub){
-        res.status(403).send({message: 'No tienes permisos para actualizar otro usuario'});
-    }else{
-        if(data.password || data.role){
-            res.status(403).send({message: 'No es posible actualizar contraseña o role del usuario'}); 
-        }else{
-            if(data.username){
-                User.findOne({username: data.username.toLowerCase()}, (err,userFind)=>{
-                    if(err){
-                        res.status(500).send({message: 'Error general'})
-                        console.log(err)
-                    }else if(userFind){
-                        if(userFind._id == req.user.sub){
-                            User.findByIdAndUpdate(userId, data, {new:true}, (err, userUpdated)=>{
-                                if(err){
-                                    res.status(500).send({message: 'Error general al actualizar'});
-                                    console.log(err);
-                                }else if(userUpdated){
-                                    res.send({message: 'Usuario actualizado', userUpdated});
+    var emailV = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+            if(data.email){
+                if(emailV.test(data.email)){
+                    if(data.username){
+                        User.findOne({username: data.username.toLowerCase()}, (err,userFind)=>{
+                            if(err){
+                                res.status(500).send({message: 'Error general'})
+                                console.log(err)
+                            }else if(userFind){
+                                if(userFind._id == userId){
+                                    if(userFind.cui == data.cui){
+                                        User.findByIdAndUpdate(userId, data, {new:true}, (err, userUpdated)=>{
+                                            if(err){
+                                                res.status(500).send({message: 'Error general al actualizar'});
+                                                console.log(err);
+                                            }else if(userUpdated){
+                                                res.send({message: 'Usuario actualizado', userUpdated});
+                                            }else{
+                                                res.send({message: 'No se actualizo el usuario'});
+                                            }
+                                        })
+                                    }else{
+                                        User.findOne({cui: data.cui}, (err,cuiFound)=>{
+                                            if(err){
+                                                res.status(500).send({message: 'Error general al bucar el cui'});
+                                                console.log(err);
+                                            }else if(cuiFound){
+                                                res.send({message: 'Numero de CUI ya en uso'})
+                                            }else{
+                                                User.findByIdAndUpdate(userId, data, {new:true}, (err, userUpdated)=>{
+                                                    if(err){
+                                                        res.status(500).send({message: 'Error general al actualizar'});
+                                                        console.log(err);
+                                                    }else if(userUpdated){
+                                                        res.send({message: 'Usuario actualizado', userUpdated});
+                                                    }else{
+                                                        res.send({message: 'No se actualizo el usuario'});
+                                                    }
+                                                })
+                                            }
+                                        })
+                                    }
                                 }else{
-                                    res.send({message: 'No se actualizo el usuario'});
+                                    res.send({message: "Nombre de usuario ya en uso"})
                                 }
-                            })
-                        }else{
-                            res.send({message: "Nombre de usuario ya en uso"})
-                        }
+                            }else{
+                                User.findByIdAndUpdate(userId, data, {new:true}, (err, userUpdated)=>{
+                                    if(err){
+                                        res.status(500).send({message: 'Error general al actualizar'});
+                                        console.log(err);
+                                    }else if(userUpdated){
+                                        res.send({message: 'Usuario actualizado', userUpdated});
+                                    }else{
+                                        res.send({message: 'No se actualizo el usuario'});
+                                    }
+                                })
+                            }
+                        })
                     }else{
                         User.findByIdAndUpdate(userId, data, {new:true}, (err, userUpdated)=>{
                             if(err){
@@ -245,26 +276,61 @@ function editUser(req, res){
                             }
                         })
                     }
-                })
+                }else{
+                    res.send({message: 'Direccion de correo invalida'});
+                }
             }else{
-                User.findByIdAndUpdate(userId, data, {new:true}, (err, userUpdated)=>{
-                    if(err){
-                        res.status(500).send({message: 'Error general al actualizar'});
-                        console.log(err);
-                    }else if(userUpdated){
-                        res.send({message: 'Usuario actualizado', userUpdated});
-                    }else{
-                        res.send({message: 'No se actualizo el usuario'});
-                    }
-                })
+                if(data.username){
+                    User.findOne({username: data.username.toLowerCase()}, (err,userFind)=>{
+                        if(err){
+                            res.status(500).send({message: 'Error general'})
+                            console.log(err)
+                        }else if(userFind){
+                            if(userFind._id == req.user.sub){
+                                User.findByIdAndUpdate(userId, data, {new:true}, (err, userUpdated)=>{
+                                    if(err){
+                                        res.status(500).send({message: 'Error general al actualizar'});
+                                        console.log(err);
+                                    }else if(userUpdated){
+                                        res.send({message: 'Usuario actualizado', userUpdated});
+                                    }else{
+                                        res.send({message: 'No se actualizo el usuario'});
+                                    }
+                                })
+                            }else{
+                                res.send({message: "Nombre de usuario ya en uso"})
+                            }
+                        }else{
+                            User.findByIdAndUpdate(userId, data, {new:true}, (err, userUpdated)=>{
+                                if(err){
+                                    res.status(500).send({message: 'Error general al actualizar'});
+                                    console.log(err);
+                                }else if(userUpdated){
+                                    res.send({message: 'Usuario actualizado', userUpdated});
+                                }else{
+                                    res.send({message: 'No se actualizo el usuario'});
+                                }
+                            })
+                        }
+                    })
+                }else{
+                    User.findByIdAndUpdate(userId, data, {new:true}, (err, userUpdated)=>{
+                        if(err){
+                            res.status(500).send({message: 'Error general al actualizar'});
+                            console.log(err);
+                        }else if(userUpdated){
+                            res.send({message: 'Usuario actualizado', userUpdated});
+                        }else{
+                            res.send({message: 'No se actualizo el usuario'});
+                        }
+                    })
+                }
             }
-        }
-    }
 }
 
 function deleteUser(req,res){
     var userId = req.params.idU;
-    
+
         User.findById(userId, (err,userFind)=>{
             if(err){
                 res.status(500).send({message: 'Error general al buscar al usuario'});
