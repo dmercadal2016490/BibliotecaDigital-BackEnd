@@ -15,7 +15,7 @@ function addLibro(req, res){
     if(userId != req.user.sub){
         res.status(403).send({message: 'No tienes permisos para acceder a esta ruta'})
     }else{
-        if(params.bibliografia && params.titulo && params.autor && params.descripcion && params.palabrasClave && params.temas && params.copias){
+        if(params.bibliografia && params.titulo && params.autor && params.descripcion && params.palabrasClaves && params.temas && params.copias){
             Libro.findOne({titulo: params.titulo.toLowerCase()}, (err, libroFind)=>{
                 if(err){
                     res.status(500).send({message: 'Error general al buscar el libro'});
@@ -24,10 +24,10 @@ function addLibro(req, res){
                     res.send({message: 'El libro que quieres ingresar ya existe'});
                 }else{
                     libro.bibliografia = params.bibliografia;
-                    libro.titulo = params.titulo;
+                    libro.titulo = params.titulo.toLowerCase();
                     libro.autor = params.autor;
                     libro.descripcion = params.descripcion;
-                    libro.palabrasClaves = params.palabrasClave;
+                    libro.palabrasClaves = params.palabrasClaves;
                     libro.temas = params.temas;
                     libro.copias = params.copias;
                     libro.disponibles = 0;
@@ -174,22 +174,31 @@ function deleteLibro(req,res){
     if(userId != req.user.sub){
         res.status(403).send({message: 'No tienes permisos para acceder a esta ruta'})
     }else{
-        Libro.findById(libroId, (err,libroFind)=>{
+        User.findOne({Libros: libroId}, (err, userFind)=>{
             if(err){
-                res.status(500).send({message: 'Error general al buscar el libro'});
+                res.status(500).send({message: 'Error general al buscar el usuario'});
                 console.log(err);
-            }else if(libroFind){
-                Libro.findByIdAndRemove(libroId, (err, libroDeleted)=>{
+            }else if(userFind){
+                res.send({message: 'Un usuario tiene una copia de este libro. Espera que lo devuelva primero'});
+            }else{
+                Libro.findById(libroId, (err,libroFind)=>{
                     if(err){
-                        res.status(500).send({message: 'Error general al eliminar el libro'});
-                    }else if(libroDeleted){
-                        res.send({message: 'Libro eliminado'})
+                        res.status(500).send({message: 'Error general al buscar el libro'});
+                        console.log(err);
+                    }else if(libroFind){
+                        Libro.findByIdAndRemove(libroId, (err, libroDeleted)=>{
+                            if(err){
+                                res.status(500).send({message: 'Error general al eliminar el libro'});
+                            }else if(libroDeleted){
+                                res.send({message: 'Libro eliminado'})
+                            }else{
+                                res.send({message: 'No se elimino el libro'});
+                            }
+                        })
                     }else{
-                        res.send({message: 'No se elimino el libro'});
+                        res.status(404).send({message: 'El libro que quieres eliminar no existe'});
                     }
                 })
-            }else{
-                res.status(404).send({message: 'El libro que quieres eliminar no existe'});
             }
         })
     }
