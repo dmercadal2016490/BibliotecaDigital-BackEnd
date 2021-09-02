@@ -141,9 +141,6 @@ function updateLibro(req, res){
     if(userId != req.user.sub){
         res.status(403).send({message: 'No tienes permisos para acceder a esta ruta'})
     }else{
-        if(params.disponibles || params.compras){
-            res.status(401).send({message: 'No se puede actulizar las copias ni las compras de un libro'});
-        }else{
             Libro.findById(libroId, (err,libroFind)=>{
                 if(err){
                     res.status(500).send({message: 'Error general al buscar el libro'});
@@ -164,7 +161,6 @@ function updateLibro(req, res){
                 }
             })
         }
-    }
 }
 
 function deleteLibro(req,res){
