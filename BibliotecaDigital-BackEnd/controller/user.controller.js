@@ -75,7 +75,7 @@ function login(req,res){
             }else{
                 res.status(404).send({message: 'El usuario con el que intentas ingresar no existe. Comunicate con el administrador'});
             }
-        }).populate('Libros')
+        }).populate('Libros').populate('Historial')
     }else{
         res.status(401).send({message: 'Por favor ingresa tu username y contraseña'});
     }

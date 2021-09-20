@@ -13,7 +13,8 @@ var userSchema = Schema({
     role: String,
     image: String,
     librosRentados: Number,
-    Libros: [{type: Schema.ObjectId, ref:'libros'}]
+    Libros: [{type: Schema.ObjectId, ref:'libros'}],
+    Historial: [{type: Schema.ObjectId, ref:'libros'}]
 })
 
 module.exports = mongoose.model('user', userSchema)

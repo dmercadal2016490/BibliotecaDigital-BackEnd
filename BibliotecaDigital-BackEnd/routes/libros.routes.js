@@ -17,5 +17,8 @@ api.get('/getLibros', librosController.getLibros)
 api.put('/:idU/uploadImageLibro/:idL', [mdAuth.ensureAuth,mdAuth.ensureAuthAdminOrBibliotecario, upload], librosController.uploadImageLibro);
 api.get('/getImageLibro/:fileName', [upload], librosController.getImageLibro);
 api.get('/getMylibros/:idU', mdAuth.ensureAuth, librosController.getMylibros);
+api.get('/getHistorial/:idU', mdAuth.ensureAuth, librosController.getHistorial);
+api.put('/cleanHistoria/:idU', librosController.limpiarHistorial)
+api.put('/search', librosController.search)
 
 module.exports = api; 

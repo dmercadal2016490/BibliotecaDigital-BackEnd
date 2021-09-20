@@ -46,7 +46,16 @@ function reservar(req,res){
                                                                 res.status(500).send({message: 'Error general al aumentar las reservaciones del usuario'});
                                                                 console.log(err);
                                                             }else if(aumento){
-                                                                res.send({message: 'Reservacion exitosa ', aumento})
+                                                                User.findByIdAndUpdate(userId, {$push:{Historial: libroPushed._id}}, {new:true}, (err, pushed)=>{
+                                                                    if(err){
+                                                                        res.status(500).send({message:'Error general al generar el historial'});
+                                                                        console.log(err);
+                                                                    }else if(pushed){
+                                                                        res.send({message: 'Libro reservado con exito ', pushed})
+                                                                    }else{
+                                                                        res.send({message: 'No se genero historial'})
+                                                                    }
+                                                                })
                                                             }else{
                                                                 res.send({message: 'No se reservo'});
                                                             }

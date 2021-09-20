@@ -291,6 +291,75 @@ function getMylibros(req,res){
     }
 }
 
+function getHistorial(req,res){
+    var userId = req.params.idU;
+    User.findById(userId).populate({path:'Historial', populate:{path:'Historial'}}).exec((err,historial)=>{
+        if(err){
+            res.status(500).send({message:'Error general'});
+            console.log(err);
+        }else if(historial){
+            res.send({message: 'Historial: ', historial});
+        }else{
+            res.status(404).send({message: 'No tienes historial'});
+        }
+    })
+}
+
+function limpiarHistorial(req,res){
+    var userId = req.params.idU;
+
+    User.findByIdAndUpdate(userId, {$pullAll:{Historial}}, (err, erased)=>{
+        if(err){
+            res.status(500).send({message: 'Error general al eliminar el historia'});
+            console.log(err);
+        }else if(erased){
+            res.send({message: 'Historial eliminado'});
+        }else{
+            res.send({message: 'No se borro el historial'})
+        }
+    })
+}
+
+function search(req,res){
+    var params = req.body;
+
+    if(params.search){
+        Libro.find({$or:[{bibliografia: params.search},
+                        {titulo: params.search},
+                        {autor: params.search},
+                        {palabrasClaves: params.search},
+                        {temas: params.search},
+                        {frecuencia: params.search},
+                        ]}, (err, searched)=>{
+                            if(err){
+                                res.status(500).send({message: 'Error general al buscar el libro'});
+                                console.log(err);
+                            }else if(searched){
+                                Libro.findOneAndUpdate({$or:[{bibliografia: params.search},
+                                    {titulo: params.search},
+                                    {autor: params.search},
+                                    {palabrasClaves: params.search},
+                                    {temas: params.search},
+                                    {frecuencia: params.search},
+                                    ]}, {$inc: {busquedas: +1}}, {new:true}, (err, libroSerached)=>{
+                                        if(err){
+                                            res.status(500).send({message: 'Error general'});
+                                            console.log(err);
+                                        }else if(libroSerached){
+                                            res.send({message: 'Libro encontrado: ', libroSerached})
+                                        }else{
+                                            res.send({message: 'No se actualizo'})
+                                        }
+                                    })
+                            }else{
+                                res.status(404).send({message: 'No existe ningun libro con estas caracteristicas'})
+                            }
+                        })
+    }else{
+        res.status(401).send({message: 'Porfavor ingrese un dato en el campo de busqueda'});
+    }
+}
+
 module.exports = {
     addLibro,
     agregarCopias,
@@ -300,5 +369,8 @@ module.exports = {
     getLibros,
     uploadImageLibro,
     getImageLibro,
-    getMylibros
+    getMylibros,
+    search,
+    getHistorial,
+    limpiarHistorial
 }
