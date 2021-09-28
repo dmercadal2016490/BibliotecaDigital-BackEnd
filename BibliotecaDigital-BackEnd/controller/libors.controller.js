@@ -112,7 +112,7 @@ function quitarCopias(req,res){
                 res.status(500).send({message: 'Error general al buscar el libro'});
                 console.log(err);
             }else if(libroFind){
-                if(libroFind.disponibles <=0){
+                if(libroFind.disponibles <=0 || params.disponibles > libroFind.disponibles){
                     res.send({message: 'No hay copias para quitar'})
                 }else{
                     Libro.findByIdAndUpdate(libroId, {$inc:{disponibles: -params.disponibles}}, {new:true}, (err, quitado)=>{
@@ -323,24 +323,24 @@ function limpiarHistorial(req,res){
 function search(req,res){
     var params = req.body;
 
-    if(params.search){
-        Libro.find({$or:[{bibliografia: params.search},
-                        {titulo: params.search},
-                        {autor: params.search},
-                        {palabrasClaves: params.search},
-                        {temas: params.search},
-                        {frecuencia: params.search},
+    if(params.libroBuscar){
+        Libro.find({$or:[{bibliografia: params.libroBuscar},
+                        {titulo: params.libroBuscar},
+                        {autor: params.libroBuscar},
+                        {palabrasClaves: params.libroBuscar},
+                        {temas: params.libroBuscar},
+                        {frecuencia: params.libroBuscar},
                         ]}, (err, searched)=>{
                             if(err){
                                 res.status(500).send({message: 'Error general al buscar el libro'});
                                 console.log(err);
                             }else if(searched){
-                                Libro.findOneAndUpdate({$or:[{bibliografia: params.search},
-                                    {titulo: params.search},
-                                    {autor: params.search},
-                                    {palabrasClaves: params.search},
-                                    {temas: params.search},
-                                    {frecuencia: params.search},
+                                Libro.findOneAndUpdate({$or:[{bibliografia: params.libroBuscar},
+                                    {titulo: params.libroBuscar},
+                                    {autor: params.libroBuscar},
+                                    {palabrasClaves: params.libroBuscar},
+                                    {temas: params.libroBuscar},
+                                    {frecuencia: params.libroBuscar},
                                     ]}, {$inc: {busquedas: +1}}, {new:true}, (err, libroSerached)=>{
                                         if(err){
                                             res.status(500).send({message: 'Error general'});
