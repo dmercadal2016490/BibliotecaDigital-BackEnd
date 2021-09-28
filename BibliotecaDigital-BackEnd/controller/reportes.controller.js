@@ -16,6 +16,19 @@ function usuarioMasReservas (req,res){
     }).sort({librosRentados:-1});
 }
 
+function usuarioMenosReservas (req,res){
+    User.find((err, userFind)=>{
+        if(err){
+            res.status(500).send({message: 'Error general al buscar a los usuarios'});
+            console.log(err);
+        }else if(userFind){
+            res.send({message: 'Usuarios encontrados: ', userFind});
+        }else{
+            res.status(404).send({message: 'No hay usuarios'});
+        }
+    }).sort({librosRentados:+1});
+}
+
 function libroMasRentado(req,res){
     Libro.find({bibliografia:'Libro'}, (err, libroFound)=>{
         if(err){
@@ -29,6 +42,19 @@ function libroMasRentado(req,res){
     }).sort({compras:-1})
 }
 
+function libroMenosRentado(req,res){
+    Libro.find({bibliografia:'Libro'}, (err, libroFound)=>{
+        if(err){
+            res.status(500).send({message: 'Error general al buscar los libros'});
+            console.log(err);
+        }else if(libroFound){
+            res.send({message: 'Libros encontrados: ', libroFound})
+        }else{
+            res.status(404).send({message: 'No hay libros mas rentados'});
+        }
+    }).sort({compras:+1})
+}
+
 function RevistaMasRentada(req,res){
     Libro.find({bibliografia:'Revista'}, (err, revistaFound)=>{
         if(err){
@@ -40,6 +66,19 @@ function RevistaMasRentada(req,res){
             res.status(404).send({message: 'No hay revistas mas rentadas'});
         }
     }).sort({compras:-1})
+}
+
+function RevistaMenosRentada(req,res){
+    Libro.find({bibliografia:'Revista'}, (err, revistaFound)=>{
+        if(err){
+            res.status(500).send({message: 'Error general al buscar las revistas'});
+            console.log(err);
+        }else if(revistaFound){
+            res.send({message: 'Revistas encontradas: ', revistaFound})
+        }else{
+            res.status(404).send({message: 'No hay revistas mas rentadas'});
+        }
+    }).sort({compras:+1})
 }
 
 function librosAgotados(req,res){
@@ -59,5 +98,8 @@ module.exports = {
     usuarioMasReservas,
     libroMasRentado,
     RevistaMasRentada,
-    librosAgotados
+    librosAgotados,
+    libroMenosRentado,
+    RevistaMenosRentada,
+    usuarioMenosReservas
 }

@@ -141,6 +141,58 @@ function updateLibro(req, res){
     if(userId != req.user.sub){
         res.status(403).send({message: 'No tienes permisos para acceder a esta ruta'})
     }else{
+        if(params.titulo){
+            Libro.findOne({titulo:params.titulo}, (err, libroFound)=>{
+                if(err){
+                    res.status(500).send({message: 'Error general al buscar el libro'});
+                    console.log(err);
+                }else if(libroFound){
+                    if(libroFound._id == libroId){
+                        Libro.findById(libroId, (err,libroFind)=>{
+                            if(err){
+                                res.status(500).send({message: 'Error general al buscar el libro'});
+                                console.log(err);
+                            }else if(libroFind){
+                                Libro.findByIdAndUpdate(libroId, params, {new:true}, (err, libroUpdated)=>{
+                                    if(err){
+                                        res.status(500).send({message: 'Error general al actualizar el libro'});
+                                        console.log(err);
+                                    }else if(libroUpdated){
+                                        res.send({message: 'Libro actualizado ', libroUpdated});
+                                    }else{
+                                        res.send({message: 'No se actualizo el libro'});
+                                    }
+                                })
+                            }else{
+                                res.status(404).send({message: 'El libro que quieres actualizar no existe'});
+                            }
+                        })
+                    }else{
+                        res.send({message: 'El titulo de este libro ya existe'});
+                    }
+                }else{
+                    Libro.findById(libroId, (err,libroFind)=>{
+                        if(err){
+                            res.status(500).send({message: 'Error general al buscar el libro'});
+                            console.log(err);
+                        }else if(libroFind){
+                            Libro.findByIdAndUpdate(libroId, params, {new:true}, (err, libroUpdated)=>{
+                                if(err){
+                                    res.status(500).send({message: 'Error general al actualizar el libro'});
+                                    console.log(err);
+                                }else if(libroUpdated){
+                                    res.send({message: 'Libro actualizado ', libroUpdated});
+                                }else{
+                                    res.send({message: 'No se actualizo el libro'});
+                                }
+                            })
+                        }else{
+                            res.status(404).send({message: 'El libro que quieres actualizar no existe'});
+                        }
+                    })
+                }
+            })
+        }else{
             Libro.findById(libroId, (err,libroFind)=>{
                 if(err){
                     res.status(500).send({message: 'Error general al buscar el libro'});
@@ -160,7 +212,8 @@ function updateLibro(req, res){
                     res.status(404).send({message: 'El libro que quieres actualizar no existe'});
                 }
             })
-        }
+        }    
+    }
 }
 
 function deleteLibro(req,res){
@@ -182,10 +235,10 @@ function deleteLibro(req,res){
                         res.status(500).send({message: 'Error general al buscar el libro'});
                         console.log(err);
                     }else if(libroFind){
-                        Libro.findByIdAndRemove(libroId, (err, libroDeleted)=>{
+                        Libro.findByIdAndRemove(libroId, (err, Deleted)=>{
                             if(err){
                                 res.status(500).send({message: 'Error general al eliminar el libro'});
-                            }else if(libroDeleted){
+                            }else if(Deleted){
                                 res.send({message: 'Libro eliminado'})
                             }else{
                                 res.send({message: 'No se elimino el libro'});

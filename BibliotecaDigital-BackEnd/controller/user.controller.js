@@ -6,6 +6,7 @@ var fs = require('fs');
 var path = require('path');
 var jwt = require('../services/jwt');
 
+
 function createInit(req,res){
     let user = new User();
 
@@ -180,7 +181,7 @@ function saveUser(req,res){
                                                 res.status(500).send({message: 'Error general al crear al usuario'});
                                                 console.log(err);
                                             }else if(userSaved){
-                                                res.send({message: 'Usuario creado exitosamente ', userSaved})
+                                                res.send({message: 'Usuario creado exitosamente ', userSaved});
                                             }else{
                                                 res.status(400).send({message: 'No se creo al usuario'})
                                             }
